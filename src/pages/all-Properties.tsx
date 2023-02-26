@@ -1,6 +1,6 @@
 import { Add } from '@mui/icons-material';
 import { useTable } from '@pankod/refine-core';
-import { Box, Typography, Stack,TextField,Select,MenuItem } from '@pankod/refine-mui';
+import { Box, Typography, Stack, TextField, Select, MenuItem } from '@pankod/refine-mui';
 import { useNavigate } from '@pankod/refine-react-router-v6';
 
 import { PropertyCard, CustomButton } from 'components';
@@ -34,16 +34,27 @@ const AllProperties = () => {
           <Box mb={2} mt={3} display='flex' width='84%' justifyContent='space-between' flexWrap='wrap'>
             <Box display='flex' gap={2} flexWrap='wrap'
               mb={{ xs: '20px', sm: 0 }}>
-              <CustomButton 
-              title={`Sort Price`}
-              handleClick={() =>{}}
-              backgroundColor='#475be8'
-              color='#fcfcfc'/>
-              <TextField 
-              variant='outlined'
-              color='info' placeholder='Search by title'
-              value=''
-              onChange={() =>{}}/>
+              <CustomButton
+                title={`Sort Price`}
+                handleClick={() => { }}
+                backgroundColor='#475be8'
+                color='#fcfcfc' />
+              <TextField
+                variant='outlined'
+                color='info' placeholder='Search by title'
+                value=''
+                onChange={() => { }} />
+              <Select variant='outlined'
+                color='info'
+                displayEmpty
+                required
+                inputProps={{ 'aria-label': 'without label' }}
+                defaultValue=''
+                value=''
+                onChange={() => { }}>
+                <MenuItem value=''>All</MenuItem>
+
+              </Select>
             </Box>
           </Box>
         </Stack>
@@ -69,6 +80,35 @@ const AllProperties = () => {
             photo={property.photo} />
         ))}
       </Box>
+      {/* pagination code below*/}
+      {allProperties.length > 0 && (
+        <Box display='flex' gap={2} mt={3} flexWrap='wrap'>
+          <CustomButton title='previous' handleClick={() => setCurrent((prev) => prev - 1)}
+            backgroundColor='#475be8' color='#fcfcfc'
+            disabled={!(current > 1)} />
+          <Box display={{ xs: 'hidden', sm: 'flex' }} alignItems='center' gap='5px'>
+            Page{''}<strong>{current} of {pageCount}</strong>
+          </Box>
+          <CustomButton title='next' handleClick={() => setCurrent((prev) => prev + 1)}
+            backgroundColor='#475be8' color='#fcfcfc'
+            disabled={current === pageCount} />
+          <Select variant='outlined'
+            color='info'
+            displayEmpty
+            required
+            inputProps={{ 'aria-label': 'without label' }}
+            defaultValue={10}
+            
+            onChange={() => { }}>
+
+              {[5,10,20,30,50].map((size) =>(
+                <MenuItem key={size} value={size}>show {size}</MenuItem>
+              ))}
+            
+
+          </Select>
+        </Box>
+      )}
     </Box>
   )
 }
