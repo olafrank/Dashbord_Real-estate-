@@ -6,7 +6,7 @@ import {
 import { FormProps } from "interfaces/common";
 import CustomButton from "./CustomButton";
 
-const Form = ({ type, register, onFinish, formLoading, handleImageChange, handleSubmit, onFinishHandler, propertyImage }: FormProps) => {
+const Form = ({ type, register, onFinish, formLoading, handleImageChange, handleSubmit, onFinishHandler, propertyImage}: FormProps) => {
   return (
     <Box>
       <Typography fontSize={25} fontWeight={700} color='#11142d'>{type} a property</Typography>
@@ -43,7 +43,7 @@ const Form = ({ type, register, onFinish, formLoading, handleImageChange, handle
                 width: '100%', background: 'transparent', fontSize: '16px',
                 borderColor: 'rgba(0,0,0,0.23)', borderRadius: 6, padding: 10, color: '#919191'
               }}
-              {...register('desccription', { required: true })} />
+              {...register('description', { required: true })} />
 
           </FormControl>
           <Stack direction='row' gap={4}>
@@ -111,7 +111,7 @@ const Form = ({ type, register, onFinish, formLoading, handleImageChange, handle
                 width: 'fit-content', color: '#2ed480',
                 textTransform: 'capitalize', fontSize: 16
               }}>Upload *</Button>
-              <input hidden accept="image/*" type='file'
+              <input  accept="image/*" type='file'
                 onChange={(e) => {
                   // @ts-ignore
                   handleImageChange(e.target.files[0])

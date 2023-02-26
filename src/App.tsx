@@ -19,13 +19,15 @@ import {
 } from '@mui/icons-material'
 
 import dataProvider from "@pankod/refine-simple-rest";
-import { MuiInferencer } from "@pankod/refine-inferencer/mui";
+// import { MuiInferencer } from "@pankod/refine-inferencer/mui";
 import routerProvider from "@pankod/refine-react-router-v6";
 import axios, { AxiosRequestConfig } from "axios";
 import { ColorModeContextProvider } from "contexts";
 import { Title, Sider, Layout, Header } from "components/layout";
-import { Login,Home,Agents,MyProfile,PropertyDetails,
-      AllProperties,CreateProperty,AgentProfile,EditProperty } from "pages";
+import {
+  Login, Home, Agents, MyProfile, PropertyDetails,
+  AllProperties, CreateProperty, AgentProfile, EditProperty
+} from "pages";
 import { CredentialResponse } from "interfaces/google";
 import { parseJwt } from "utils/parse-jwt";
 
@@ -45,17 +47,36 @@ axiosInstance.interceptors.request.use((request: AxiosRequestConfig) => {
 
 function App() {
   const authProvider: AuthProvider = {
-    login: ({ credential }: CredentialResponse) => {
+    login: async ({ credential }: CredentialResponse) => {
       const profileObj = credential ? parseJwt(credential) : null;
 
+      // save user to mongodb
       if (profileObj) {
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            ...profileObj,
+        const response = await fetch('http://localhost:8080/api/v1/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: profileObj.name,
+            email: profileObj.email,
             avatar: profileObj.picture,
           })
-        );
+        })
+        const data = await response.json()
+
+        if (response.status === 200) {
+          localStorage.setItem(
+            "user",
+            JSON.stringify({
+              ...profileObj,
+              avatar: profileObj.picture,
+              userId: data._id
+            })
+          );
+
+        } else{
+          return Promise.reject()
+        }
+
       }
 
       localStorage.setItem("token", `${credential}`);
@@ -76,6 +97,7 @@ function App() {
 
       return Promise.resolve();
     },
+
     checkError: () => Promise.resolve(),
     checkAuth: async () => {
       const token = localStorage.getItem("token");
@@ -101,7 +123,7 @@ function App() {
       <GlobalStyles styles={{ html: { WebkitFontSmoothing: "auto" } }} />
       <RefineSnackbarProvider>
         <Refine
-          dataProvider={dataProvider("https://api.fake-rest.refine.dev")}
+          dataProvider={dataProvider("http://localhost:8080/api/v1")}
           notificationProvider={notificationProvider}
           ReadyPage={ReadyPage}
           catchAll={<ErrorComponent />}
@@ -109,32 +131,32 @@ function App() {
             {
               name: "Properties",
               list: AllProperties,
-              show:PropertyDetails,
-              create:CreateProperty,
-              edit:EditProperty,
-              icon:<VillaOutlined/>
+              show: PropertyDetails,
+              create: CreateProperty,
+              edit: EditProperty,
+              icon: <VillaOutlined />
             },
             {
               name: "agents",
-              list:Agents,
-              show:AgentProfile,
-              icon:<PeopleAltOutlined />
+              list: Agents,
+              show: AgentProfile,
+              icon: <PeopleAltOutlined />
             },
             {
               name: "Reviews",
               list: Home,
-              icon:<StarOutlineRounded />
+              icon: <StarOutlineRounded />
             },
             {
               name: "Messages",
               list: Home,
-              icon:<ChatBubbleOutlined />
+              icon: <ChatBubbleOutlined />
             },
             {
               name: "My-profile",
-              options:{label:'My profile'},
+              options: { label: 'My profile' },
               list: MyProfile,
-              icon:<AccountCircleOutlined />
+              icon: <AccountCircleOutlined />
             },
           ]}
           Title={Title}
