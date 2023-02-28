@@ -5,6 +5,8 @@ import { useNavigate } from '@pankod/refine-react-router-v6';
 
 import { PropertyCard, CustomButton } from 'components';
 
+import { useMemo } from 'react';
+
 
 const AllProperties = () => {
   const navigate = useNavigate();
@@ -21,8 +23,25 @@ const AllProperties = () => {
 
   const allProperties = data?.data ?? [];
 
-  if (isLoading) return <Typography>Loading</Typography>
-  if (isError) return <Typography>Error</Typography>
+  const currentPrice = sorter.find((item) => item.field === 'price')?.order
+
+  const toggleSort = (field: string) => {
+    setSorter([{ field, order: currentPrice === 'asc' ? 'desc' : 'asc' }])
+  }
+
+  const currentFilterValues = useMemo(() => {
+    const logicalFilters = filters.flatMap((item) =>
+      ('field' in item ? item : []));
+
+    return {
+      title: logicalFilters.find((item) => item.field === 'title')?.value || '',
+      propertyType: logicalFilters.find((item) => item.field === 'propertyType')?.value || '',
+    }
+
+  }, [filters])
+
+  if (isLoading) return <Typography sx={{fontSize:25, fontWeight:700, color:'#11142d'}}>Loading</Typography>
+  if (isError) return <Typography sx={{fontSize:25, fontWeight:700, color:'#11142d'}}>Error</Typography>
 
   return (
 
@@ -35,24 +54,41 @@ const AllProperties = () => {
             <Box display='flex' gap={2} flexWrap='wrap'
               mb={{ xs: '20px', sm: 0 }}>
               <CustomButton
-                title={`Sort Price`}
-                handleClick={() => { }}
+                title={`Sort Price ${currentPrice === 'asc' ? '↑' : '↓'}`}
+                handleClick={() => toggleSort('price')}
                 backgroundColor='#475be8'
                 color='#fcfcfc' />
               <TextField
                 variant='outlined'
                 color='info' placeholder='Search by title'
-                value=''
-                onChange={() => { }} />
+                value={currentFilterValues.title}
+                onChange={(e) => {
+                  setFilters([
+                    {
+                      field: 'title',
+                      operator: 'contains',
+                      value: e.currentTarget.value ? e.currentTarget.value : undefined
+                    }
+                  ])
+                }} />
               <Select variant='outlined'
                 color='info'
                 displayEmpty
                 required
                 inputProps={{ 'aria-label': 'without label' }}
                 defaultValue=''
-                value=''
-                onChange={() => { }}>
-                <MenuItem value=''>All</MenuItem>
+                value={currentFilterValues.propertyType}
+                onChange={(e) => {
+                  setFilters([
+                    {
+                      field: 'propertyType',
+                      operator: 'eq',
+                      value: e.target.value
+                    }
+                  ], 'replace')
+                }}><MenuItem value=''>All</MenuItem>
+                {['Apartment', 'Land', 'Villa', 'Bungalow', 'Office Space', 'Duplex', 'Condos', 'Chalet']
+                  .map((type) => (<MenuItem key={type} value={type.toLocaleLowerCase()}>{type}</MenuItem>))}
 
               </Select>
             </Box>
@@ -73,7 +109,7 @@ const AllProperties = () => {
         {allProperties.map((property) => (
           <PropertyCard
             key={property._id}
-            id={property.id}
+            _id={property._id}
             title={property.title}
             price={property.price}
             location={property.location}
@@ -98,13 +134,12 @@ const AllProperties = () => {
             required
             inputProps={{ 'aria-label': 'without label' }}
             defaultValue={10}
-            
-            onChange={() => { }}>
 
-              {[5,10,20,30,50].map((size) =>(
-                <MenuItem key={size} value={size}>show {size}</MenuItem>
-              ))}
-            
+            onChange={(e) => setPageSize(e.target.value ? Number(e.target.value) : 10)}>
+
+            {[10, 20, 30, 50].map((size) => (
+              <MenuItem key={size} value={size}>show {size}</MenuItem>
+            ))}
 
           </Select>
         </Box>

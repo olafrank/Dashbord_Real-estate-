@@ -1,4 +1,3 @@
-import React from "react";
 
 import { Refine, AuthProvider } from "@pankod/refine-core";
 import {
@@ -137,7 +136,7 @@ function App() {
               icon: <VillaOutlined />
             },
             {
-              name: "agents",
+              name: "Agents",
               list: Agents,
               show: AgentProfile,
               icon: <PeopleAltOutlined />
